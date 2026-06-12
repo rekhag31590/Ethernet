@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>XGMII & IEEE Clause 49 PCS — Reference Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:        #0d1117;
+    --bg2:       #161b22;
+    --bg3:       #1c2330;
+    --border:    #30363d;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --purple:    #a371f7;
+    --purple-bg: #1a1040;
+    --teal:      #39d353;
+    --teal-bg:   #0a2a1a;
+    --amber:     #e3b341;
+    --amber-bg:  #2a1f00;
+    --coral:     #f78166;
+    --coral-bg:  #2a0f08;
+    --red:       #ff7b72;
+    --red-bg:    #2a0a08;
+    --blue:      #58a6ff;
+    --blue-bg:   #051d40;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Inter', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; gap: 0; height: 52px;
+  }
+  .nav-brand {
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    color: var(--purple); margin-right: 32px; white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+  .nav-links { display: flex; gap: 4px; overflow-x: auto; }
+  .nav-links a {
+    font-size: 13px; color: var(--muted); text-decoration: none;
+    padding: 6px 12px; border-radius: 6px; white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg2); }
+
+  /* ── Layout ── */
+  .page { max-width: 980px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 12px; color: var(--purple);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 36px; font-weight: 600; line-height: 1.2;
+    margin-bottom: 16px; letter-spacing: -0.02em;
+  }
+  .hero h1 span { color: var(--purple); }
+  .hero-sub {
+    font-size: 16px; color: var(--muted); max-width: 620px; line-height: 1.6;
+  }
+  .hero-tags { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .tag {
+    font-family: var(--mono); font-size: 11px; padding: 3px 10px;
+    border-radius: 20px; border: 1px solid; font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .tag-purple { color: var(--purple); border-color: var(--purple); background: var(--purple-bg); }
+  .tag-teal   { color: var(--teal);   border-color: var(--teal);   background: var(--teal-bg); }
+  .tag-amber  { color: var(--amber);  border-color: var(--amber);  background: var(--amber-bg); }
+
+  /* ── Sections ── */
+  section { margin-bottom: 56px; scroll-margin-top: 64px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    color: var(--muted); background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 4px; letter-spacing: 0.08em;
+  }
+  .section-header h2 {
+    font-size: 20px; font-weight: 600; letter-spacing: -0.01em;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+  }
+  .card p { color: var(--text); line-height: 1.7; }
+
+  /* ── Stack diagram ── */
+  .stack { display: flex; flex-direction: column; gap: 0; max-width: 560px; }
+  .stack-layer {
+    display: flex; align-items: stretch;
+    border: 1px solid var(--border); border-bottom: none;
+    background: var(--bg2);
+  }
+  .stack-layer:first-child { border-radius: 10px 10px 0 0; }
+  .stack-layer:last-child  { border-bottom: 1px solid var(--border); border-radius: 0 0 10px 10px; }
+  .stack-layer-bar {
+    width: 4px; flex-shrink: 0; border-radius: 0;
+  }
+  .stack-layer-body { padding: 12px 16px; flex: 1; }
+  .stack-layer-name {
+    font-size: 14px; font-weight: 600; margin-bottom: 2px;
+  }
+  .stack-layer-detail {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+  .stack-iface {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 16px; background: var(--bg);
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .stack-iface-label {
+    font-family: var(--mono); font-size: 11px; color: var(--amber);
+    font-weight: 600; letter-spacing: 0.04em;
+  }
+  .stack-iface-detail { font-size: 11px; color: var(--muted); }
+  .arrow-down { color: var(--border); font-size: 12px; }
+
+  /* ── XGMII bus table ── */
+  .bus-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
+  .bus-table th {
+    background: var(--bg3); color: var(--muted); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 10px 14px; border: 1px solid var(--border); text-align: left;
+  }
+  .bus-table td {
+    padding: 10px 14px; border: 1px solid var(--border);
+    vertical-align: middle; line-height: 1.4;
+  }
+  .bus-table tr:hover td { background: var(--bg3); }
+  .mono { font-family: var(--mono); }
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    font-weight: 600; padding: 2px 8px; border-radius: 4px;
+  }
+
+  /* ── Clock viz ── */
+  .clock-box {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px; margin-bottom: 16px;
+  }
+  .clock-formula {
+    font-family: var(--mono); font-size: 15px; color: var(--amber);
+    text-align: center; margin-bottom: 20px; letter-spacing: 0.03em;
+  }
+  .clock-steps { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .clock-step {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; text-align: center; min-width: 130px;
+  }
+  .clock-step-val {
+    font-family: var(--mono); font-size: 18px; font-weight: 600;
+    color: var(--amber); display: block; margin-bottom: 2px;
+  }
+  .clock-step-label { font-size: 11px; color: var(--muted); }
+  .clock-op {
+    display: flex; align-items: center;
+    font-family: var(--mono); font-size: 20px; color: var(--border);
+  }
+
+  /* ── Control codes ── */
+  .code-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .code-card {
+    border-radius: 8px; padding: 16px 18px;
+    border: 1px solid;
+  }
+  .code-hex {
+    font-family: var(--mono); font-size: 22px; font-weight: 600;
+    margin-bottom: 4px; display: block;
+  }
+  .code-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .code-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .code-txc  { font-family: var(--mono); font-size: 11px; margin-top: 8px; }
+
+  /* ── Waveform ── */
+  .waveform-wrap {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; overflow-x: auto; margin-bottom: 16px;
+  }
+  .waveform-label { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .wf-table { border-collapse: collapse; width: 100%; min-width: 560px; }
+  .wf-table td {
+    border: none; padding: 3px 0; vertical-align: middle;
+  }
+  .wf-sig { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-right: 12px; white-space: nowrap; width: 80px; text-align: right; }
+  .wf-cell { height: 26px; position: relative; }
+  .wf-hi, .wf-lo, .wf-data { display: block; height: 100%; }
+  .cycles { display: flex; }
+  .cycle { flex: 1; display: flex; flex-direction: column; border-left: 1px solid var(--border); }
+  .cycle-top { height: 13px; }
+  .cycle-bot { height: 13px; }
+  .cycle-label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; padding-top: 2px; }
+  .cycle-content {
+    font-family: var(--mono); font-size: 10px; text-align: center;
+    padding: 2px 4px; height: 26px; display: flex; align-items: center; justify-content: center;
+    border-left: 2px solid; border-right: 2px solid;
+    white-space: nowrap; overflow: hidden;
+  }
+
+  /* ── 64B/66B section ── */
+  .block-vis {
+    display: flex; align-items: stretch; gap: 0;
+    font-family: var(--mono); font-size: 12px; margin-bottom: 16px;
+    border-radius: 8px; overflow: hidden; border: 1px solid var(--border);
+  }
+  .block-sync {
+    background: var(--purple-bg); border-right: 2px solid var(--purple);
+    padding: 14px 12px; text-align: center; min-width: 72px;
+  }
+  .block-sync-val { font-size: 18px; font-weight: 600; color: var(--purple); display: block; }
+  .block-sync-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .block-payload {
+    flex: 1; padding: 14px 16px; background: var(--bg2);
+    display: flex; align-items: center;
+  }
+  .block-payload-inner { width: 100%; }
+  .block-bytes { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 6px; }
+  .block-byte {
+    font-size: 10px; padding: 2px 5px; border-radius: 3px;
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted);
+  }
+  .block-byte.data   { border-color: var(--teal);   color: var(--teal);   background: var(--teal-bg); }
+  .block-byte.ctrl   { border-color: var(--coral);  color: var(--coral);  background: var(--coral-bg); }
+  .block-byte.active { border-color: var(--amber);  color: var(--amber);  background: var(--amber-bg); }
+
+  /* ── Tip callouts ── */
+  .tip {
+    display: flex; gap: 12px; padding: 14px 16px;
+    border-radius: 8px; margin-bottom: 12px;
+    border-left: 3px solid;
+  }
+  .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .tip p { font-size: 13px; line-height: 1.6; }
+  .tip-purple { background: var(--purple-bg); border-color: var(--purple); }
+  .tip-amber  { background: var(--amber-bg);  border-color: var(--amber); }
+  .tip-teal   { background: var(--teal-bg);   border-color: var(--teal); }
+
+  /* ── Full datapath ── */
+  .datapath { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin-bottom: 16px; }
+  .dp-block {
+    padding: 10px 14px; border-radius: 6px;
+    font-size: 12px; font-weight: 600; font-family: var(--mono);
+    text-align: center; white-space: nowrap;
+  }
+  .dp-arrow {
+    font-size: 16px; color: var(--border); padding: 0 4px;
+  }
+  .dp-iface {
+    font-family: var(--mono); font-size: 10px; color: var(--amber);
+    text-align: center; padding: 0 2px; white-space: nowrap;
+  }
+  .dp-col { display: flex; flex-direction: column; align-items: center; }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 26px; }
+    .clock-steps { flex-direction: column; align-items: center; }
+    .clock-op { display: none; }
+    .code-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 0 16px; }
+    .page { padding: 0 16px 60px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">IEEE 802.3 · Clause 49</div>
+  <div class="nav-links">
+    <a href="#stack">Layer stack</a>
+    <a href="#xgmii">XGMII bus</a>
+    <a href="#clock">Clock & rate</a>
+    <a href="#codes">Control codes</a>
+    <a href="#cycles">Bus cycles</a>
+    <a href="#encoding">64B/66B</a>
+    <a href="#datapath">Full datapath</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">10GBASE-R · Physical layer reference</div>
+    <h1>XGMII &amp; <span>PCS</span> — Clause 49</h1>
+    <p class="hero-sub">
+      How the RS layer hands 10 Gbps of Ethernet traffic to the PCS over the XGMII bus,
+      and how the PCS encodes it into 66-bit blocks for the line.
+    </p>
+    <div class="hero-tags">
+      <span class="tag tag-purple">IEEE 802.3</span>
+      <span class="tag tag-teal">Clause 49</span>
+      <span class="tag tag-amber">XGMII</span>
+      <span class="tag tag-teal">64B/66B</span>
+      <span class="tag tag-amber">312.5 MHz</span>
+    </div>
+  </div>
+
+  <!-- 1. Layer stack -->
+  <section id="stack">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Where PCS sits in the sublayer stack</h2>
+    </div>
+    <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">
+      PCS is not adjacent to the MAC directly — the Reconciliation Sublayer (RS) sits between them and presents data via XGMII. On the other side, FEC (when present) sits between PCS and the PMA.
+    </p>
+    <div class="stack">
+      <div class="stack-layer">
+        <div class="stack-layer-bar" style="background:var(--muted)"></div>
+        <div class="stack-layer-body">
+          <div class="stack-layer-name">MAC — Media access control</div>
+          <div class="stack-layer-detail">Clause 46 · framing, flow control</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-layer-bar" style="background:var(--muted)"></div>
+        <div class="stack-layer-body">
+          <div class="stack-layer-name">RS — Reconciliation sublayer</div>
+          <div class="stack-layer-detail">Clause 46 · maps MAC signals to MII signals</div>
+        </div>
+      </div>
+      <div class="stack-iface">
+        <span class="arrow-down">↕</span>
+        <span class="stack-iface-label">XGMII</span>
+        <span class="stack-iface-detail">TXD[31:0] + TXC[3:0] · 312.5 MHz · 10 Gbps</span>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-layer-bar" style="background:var(--purple)"></div>
+        <div class="stack-layer-body">
+          <div class="stack-layer-name" style="color:var(--purple)">PCS — Physical coding sublayer</div>
+          <div class="stack-layer-detail">Clause 49 · 64B/66B encode · scrambler</div>
+        </div>
+      </div>
+      <div class="stack-iface">
+        <span class="arrow-down">↕</span>
+        <span class="stack-iface-label">PCS–FEC</span>
+        <span class="stack-iface-detail">66-bit blocks · self-synchronised</span>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-layer-bar" style="background:var(--teal)"></div>
+        <div class="stack-layer-body">
+          <div class="stack-layer-name" style="color:var(--teal)">FEC — Forward error correction</div>
+          <div class="stack-layer-detail">Clause 74 (FC-FEC, optional for 10G) · Clause 91 (RS-FEC, 25G+)</div>
+        </div>
+      </div>
+      <div class="stack-iface">
+        <span class="arrow-down">↕</span>
+        <span class="stack-iface-label">PMA service</span>
+        <span class="stack-iface-detail">serial 10.3125 Gbps bitstream</span>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-layer-bar" style="background:var(--muted)"></div>
+        <div class="stack-layer-body">
+          <div class="stack-layer-name">PMA — Physical medium attachment</div>
+          <div class="stack-layer-detail">Clause 51 · serialiser / deserialiser</div>
+        </div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-layer-bar" style="background:var(--muted)"></div>
+        <div class="stack-layer-body">
+          <div class="stack-layer-name">PMD — Physical medium dependent</div>
+          <div class="stack-layer-detail">Optical / copper transceiver</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. XGMII bus -->
+  <section id="xgmii">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>XGMII bus structure</h2>
+    </div>
+    <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">
+      XGMII is a full-duplex parallel bus — TX and RX paths are completely independent and unidirectional. Each direction carries the same set of signals.
+    </p>
+    <table class="bus-table">
+      <thead>
+        <tr>
+          <th>Signal</th>
+          <th>Width</th>
+          <th>Direction</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pill" style="background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal)">TXD[31:0]</span></td>
+          <td>32 bits</td>
+          <td>RS → PCS</td>
+          <td>4 data octets per cycle — one octet per lane (lane 0 = bits 7:0, lane 3 = bits 31:24)</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal)">TXC[3:0]</span></td>
+          <td>4 bits</td>
+          <td>RS → PCS</td>
+          <td>One control flag per lane. <span class="mono">1</span> = the byte on that lane is a control code, not data</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber)">TX_CLK</span></td>
+          <td>1 bit</td>
+          <td>RS → PCS</td>
+          <td>312.5 MHz single data rate (SDR) clock. Data captured on rising edge</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">RXD[31:0]</span></td>
+          <td>32 bits</td>
+          <td>PCS → RS</td>
+          <td>4 received octets per cycle from the PCS decode path</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">RXC[3:0]</span></td>
+          <td>4 bits</td>
+          <td>PCS → RS</td>
+          <td>Control flags for each received lane — mirrors TXC semantics</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber)">RX_CLK</span></td>
+          <td>1 bit</td>
+          <td>PCS → RS</td>
+          <td>Recovered RX clock — derived from the incoming serial stream by the PMA CDR</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tip tip-amber" style="margin-top:16px">
+      <div class="tip-icon">★</div>
+      <p>TX_CLK and RX_CLK are independent. TX clock is generated locally; RX clock is recovered from the incoming bitstream. They may differ slightly in frequency due to spread-spectrum clocking on the remote transmitter.</p>
+    </div>
+  </section>
+
+  <!-- 3. Clock and rate -->
+  <section id="clock">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Clock frequency &amp; throughput</h2>
+    </div>
+    <div class="clock-box">
+      <div class="clock-formula">10 Gbps ÷ 32 bits = 312.5 MHz</div>
+      <div class="clock-steps">
+        <div class="clock-step">
+          <span class="clock-step-val">10 Gbps</span>
+          <span class="clock-step-label">target line rate</span>
+        </div>
+        <div class="clock-op">÷</div>
+        <div class="clock-step">
+          <span class="clock-step-val">32 b</span>
+          <span class="clock-step-label">bus width</span>
+        </div>
+        <div class="clock-op">=</div>
+        <div class="clock-step">
+          <span class="clock-step-val">312.5 MHz</span>
+          <span class="clock-step-label">clock rate (SDR)</span>
+        </div>
+        <div class="clock-op">→</div>
+        <div class="clock-step">
+          <span class="clock-step-val">4 bytes</span>
+          <span class="clock-step-label">per cycle</span>
+        </div>
+      </div>
+    </div>
+    <div class="tip tip-purple">
+      <div class="tip-icon">ℹ</div>
+      <p>The actual line rate after 64B/66B encoding is <strong style="color:var(--purple)">10.3125 Gbps</strong> — 10 Gbps × (66÷64) = 3.125% overhead. The PMA runs at 10.3125 Gbps, not 10 Gbps.</p>
+    </div>
+    <div class="tip tip-teal">
+      <div class="tip-icon">ℹ</div>
+      <p>XGMII is an on-chip interface only. It is not brought out to PCB connectors. For chip-to-chip 10G connections, XAUI (4 × 3.125 Gbps serial lanes, Clause 48) is used instead.</p>
+    </div>
+  </section>
+
+  <!-- 4. Control codes -->
+  <section id="codes">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>XGMII control codes</h2>
+    </div>
+    <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">
+      When a TXC bit is <span class="mono" style="color:var(--amber)">1</span>, the corresponding lane carries one of these four special values instead of payload data. The PCS must recognise all four and translate them into the appropriate 64B/66B control block.
+    </p>
+    <div class="code-grid">
+      <div class="code-card" style="background:var(--purple-bg); border-color:var(--purple)">
+        <span class="code-hex" style="color:var(--purple)">0x07</span>
+        <div class="code-name" style="color:var(--purple)">/I/ IDLE</div>
+        <div class="code-desc">Sent continuously between frames as inter-frame gap. All 4 lanes carry 0x07 with TXC=1111 during idle periods.</div>
+        <div class="code-txc" style="color:var(--purple)">TXC = 1 on any lane</div>
+      </div>
+      <div class="code-card" style="background:var(--teal-bg); border-color:var(--teal)">
+        <span class="code-hex" style="color:var(--teal)">0xFB</span>
+        <div class="code-name" style="color:var(--teal)">/S/ START</div>
+        <div class="code-desc">Marks the first byte of a new Ethernet frame. <strong style="color:var(--teal)">Must always appear on lane 0 only.</strong> Lanes 1–3 in the same cycle carry the first 3 bytes of preamble.</div>
+        <div class="code-txc" style="color:var(--teal)">TXC[0] = 1, lane 0 only</div>
+      </div>
+      <div class="code-card" style="background:var(--coral-bg); border-color:var(--coral)">
+        <span class="code-hex" style="color:var(--coral)">0xFD</span>
+        <div class="code-name" style="color:var(--coral)">/T/ TERMINATE</div>
+        <div class="code-desc">Marks the last valid byte of a frame. Can appear on any lane (0–3). Lanes after /T/ in the same cycle are filled with IDLE. Lane position encodes how many valid bytes precede it.</div>
+        <div class="code-txc" style="color:var(--coral)">TXC[n] = 1, any lane</div>
+      </div>
+      <div class="code-card" style="background:var(--red-bg); border-color:var(--red)">
+        <span class="code-hex" style="color:var(--red)">0xFE</span>
+        <div class="code-name" style="color:var(--red)">/E/ ERROR</div>
+        <div class="code-desc">Propagates an error condition from the MAC. PCS encodes this as an error control block so the remote receiver is notified.</div>
+        <div class="code-txc" style="color:var(--red)">TXC[n] = 1, any lane</div>
+      </div>
+    </div>
+    <div class="tip tip-amber" style="margin-top:4px">
+      <div class="tip-icon">★</div>
+      <p>The START code rule is strict: if the RS cannot place /S/ on lane 0 due to frame alignment, it must insert extra IDLE cycles until alignment is correct. This guarantees the PCS always finds /S/ at a predictable position.</p>
+    </div>
+  </section>
+
+  <!-- 5. Bus cycles -->
+  <section id="cycles">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>XGMII bus cycle examples</h2>
+    </div>
+    <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">
+      Each row below is one clock cycle (4 octets + 4 TXC bits). Read left to right: lane 0 is the lowest byte, lane 3 is the highest.
+    </p>
+
+    <!-- Cycle table -->
+    <table class="bus-table" style="margin-bottom:16px">
+      <thead>
+        <tr>
+          <th>Cycle type</th>
+          <th>Lane 0 [7:0]</th>
+          <th>Lane 1 [15:8]</th>
+          <th>Lane 2 [23:16]</th>
+          <th>Lane 3 [31:24]</th>
+          <th>TXC[3:0]</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pill" style="background:var(--purple-bg); color:var(--purple); border:1px solid var(--purple)">IDLE</span></td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple); font-weight:600">1111</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal)">SOP</span></td>
+          <td class="mono" style="color:var(--teal)">0xFB /S/</td>
+          <td class="mono">0x55 preamble</td>
+          <td class="mono">0x55 preamble</td>
+          <td class="mono">0x55 preamble</td>
+          <td class="mono" style="color:var(--amber); font-weight:600">1000</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--bg3); color:var(--muted); border:1px solid var(--border)">DATA</span></td>
+          <td class="mono">0xXX data</td>
+          <td class="mono">0xXX data</td>
+          <td class="mono">0xXX data</td>
+          <td class="mono">0xXX data</td>
+          <td class="mono" style="color:var(--muted); font-weight:600">0000</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">EOP lane 1</span></td>
+          <td class="mono">0xXX data</td>
+          <td class="mono" style="color:var(--coral)">0xFD /T/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--amber); font-weight:600">0111</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">EOP lane 3</span></td>
+          <td class="mono">0xXX data</td>
+          <td class="mono">0xXX data</td>
+          <td class="mono">0xXX data</td>
+          <td class="mono" style="color:var(--coral)">0xFD /T/</td>
+          <td class="mono" style="color:var(--amber); font-weight:600">1000</td>
+        </tr>
+        <tr>
+          <td><span class="pill" style="background:var(--red-bg); color:var(--red); border:1px solid var(--red)">ERROR</span></td>
+          <td class="mono" style="color:var(--red)">0xFE /E/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple)">0x07 /I/</td>
+          <td class="mono" style="color:var(--purple); font-weight:600">1111</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tip tip-purple">
+      <div class="tip-icon">ℹ</div>
+      <p>The TERMINATE lane position matters to the PCS: it determines how many valid data bytes are in that cycle, which determines which 64B/66B control block type (O-code) gets generated. There are 8 possible terminate positions (lane 0–3 in two possible alignment phases).</p>
+    </div>
+  </section>
+
+  <!-- 6. 64B/66B encoding -->
+  <section id="encoding">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>How PCS converts XGMII → 64B/66B blocks</h2>
+    </div>
+    <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">
+      The PCS accumulates two consecutive XGMII cycles (8 bytes) and encodes them into one 66-bit block. The 2-bit sync header identifies whether the block carries data or control information.
+    </p>
+
+    <div style="margin-bottom:20px">
+      <p style="font-size:13px; color:var(--muted); margin-bottom:10px; font-family:var(--mono)">Data block — TXC all zero, 8 bytes of payload:</p>
+      <div class="block-vis">
+        <div class="block-sync">
+          <span class="block-sync-val">01</span>
+          <span class="block-sync-label">sync header<br>= data</span>
+        </div>
+        <div class="block-payload">
+          <div class="block-payload-inner">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-family:var(--mono)">64-bit payload</div>
+            <div class="block-bytes">
+              <span class="block-byte data">D0</span>
+              <span class="block-byte data">D1</span>
+              <span class="block-byte data">D2</span>
+              <span class="block-byte data">D3</span>
+              <span class="block-byte data">D4</span>
+              <span class="block-byte data">D5</span>
+              <span class="block-byte data">D6</span>
+              <span class="block-byte data">D7</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:13px; color:var(--muted); margin-bottom:10px; font-family:var(--mono)">Control block — at least one TXC bit set:</p>
+      <div class="block-vis">
+        <div class="block-sync" style="background:var(--coral-bg); border-color:var(--coral)">
+          <span class="block-sync-val" style="color:var(--coral)">10</span>
+          <span class="block-sync-label">sync header<br>= control</span>
+        </div>
+        <div class="block-payload">
+          <div class="block-payload-inner">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-family:var(--mono)">8-bit block type field + 56-bit control/data payload</div>
+            <div class="block-bytes">
+              <span class="block-byte ctrl">TYPE</span>
+              <span class="block-byte ctrl">C0</span>
+              <span class="block-byte ctrl">C1</span>
+              <span class="block-byte data">D2</span>
+              <span class="block-byte data">D3</span>
+              <span class="block-byte data">D4</span>
+              <span class="block-byte data">D5</span>
+              <span class="block-byte data">D6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <table class="bus-table" style="margin-bottom:16px">
+      <thead>
+        <tr>
+          <th>Sync header</th>
+          <th>Block type</th>
+          <th>XGMII origin</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono" style="color:var(--purple)">01</td>
+          <td>Data block</td>
+          <td>TXC = 0000 (all data)</td>
+          <td>Full 64-bit payload, no type byte needed</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--coral)">10</td>
+          <td>Control — all IDLE</td>
+          <td>TXC = 1111, all 0x07</td>
+          <td>Block type 0x1E · 8 bytes of IDLE encoding</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--coral)">10</td>
+          <td>Control — START (lane 0)</td>
+          <td>0xFB on lane 0</td>
+          <td>Block type 0x78 · preamble bytes in lanes 1–3</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--coral)">10</td>
+          <td>Control — TERMINATE</td>
+          <td>0xFD on lane 0–7</td>
+          <td>8 block types (0x87–0xFF) based on terminate position</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--coral)">10</td>
+          <td>Control — ERROR</td>
+          <td>0xFE on any lane</td>
+          <td>Error block propagated to receiver</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tip tip-teal">
+      <div class="tip-icon">ℹ</div>
+      <p>After 64B/66B encoding, the 66-bit block passes through the <strong style="color:var(--teal)">scrambler</strong> (polynomial x⁵⁸ + x³⁹ + 1). The scrambler randomises the payload bits to prevent long runs of identical bits that would break clock recovery at the receiver. The 2-bit sync header is <em>not</em> scrambled.</p>
+    </div>
+  </section>
+
+  <!-- 7. Full datapath -->
+  <section id="datapath">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Complete TX / RX datapath</h2>
+    </div>
+    <p style="color:var(--muted); margin-bottom:16px; font-size:14px;">TX path — MAC to wire:</p>
+    <div class="card" style="overflow-x:auto; padding:16px 20px">
+      <div class="datapath">
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--bg3); color:var(--muted); border:1px solid var(--border)">XGMII in</div>
+          <div style="font-size:10px; color:var(--muted); font-family:var(--mono); text-align:center">RS → PCS</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--purple-bg); color:var(--purple); border:1px solid var(--purple)">64B/66B<br>encoder</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--purple-bg); color:var(--purple); border:1px solid var(--purple)">Scrambler<br>x⁵⁸+x³⁹+1</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal)">FEC<br>encode</div>
+          <div style="font-size:10px; color:var(--muted); font-family:var(--mono); text-align:center">Cl.74 optional</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--bg3); color:var(--muted); border:1px solid var(--border)">PMA<br>serializer</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber)">Wire<br>10.3125G</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="color:var(--muted); margin-bottom:16px; font-size:14px; margin-top:20px">RX path — wire to MAC:</p>
+    <div class="card" style="overflow-x:auto; padding:16px 20px">
+      <div class="datapath">
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber)">Wire<br>10.3125G</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--bg3); color:var(--muted); border:1px solid var(--border)">PMA<br>CDR</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--teal-bg); color:var(--teal); border:1px solid var(--teal)">FEC<br>decode</div>
+          <div style="font-size:10px; color:var(--muted); font-family:var(--mono); text-align:center">correct errors</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">Block<br>sync</div>
+          <div style="font-size:10px; color:var(--muted); font-family:var(--mono); text-align:center">find 2-bit header</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">Descrambler</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--coral-bg); color:var(--coral); border:1px solid var(--coral)">64B/66B<br>decoder</div>
+        </div>
+        <span class="dp-arrow">→</span>
+        <div class="dp-col">
+          <div class="dp-block" style="background:var(--bg3); color:var(--muted); border:1px solid var(--border)">XGMII out</div>
+          <div style="font-size:10px; color:var(--muted); font-family:var(--mono); text-align:center">PCS → RS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip tip-amber" style="margin-top:16px">
+      <div class="tip-icon">★</div>
+      <p>FEC decode happens <em>before</em> block sync and descrambling on the RX path. This is intentional — you want corrected bits before the PCS tries to find block boundaries. Trying to sync on uncorrected errored bits would cause false lock and increased latency.</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Quick reference — key numbers</div>
+      <table class="bus-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>XGMII clock</td><td class="mono" style="color:var(--amber)">312.5 MHz</td><td>SDR, single data rate</td></tr>
+          <tr><td>XGMII bus width</td><td class="mono" style="color:var(--amber)">32 bits + 4 ctrl</td><td>4 byte lanes</td></tr>
+          <tr><td>XGMII throughput</td><td class="mono" style="color:var(--amber)">10 Gbps</td><td>312.5M × 4B × 8 = 10G</td></tr>
+          <tr><td>Block size</td><td class="mono" style="color:var(--purple)">66 bits</td><td>2 sync + 64 payload</td></tr>
+          <tr><td>Coding efficiency</td><td class="mono" style="color:var(--purple)">64/66 = 97.0%</td><td>vs 8B/10B = 80%</td></tr>
+          <tr><td>Line rate</td><td class="mono" style="color:var(--amber)">10.3125 Gbps</td><td>10G × 66/64</td></tr>
+          <tr><td>Scrambler polynomial</td><td class="mono" style="color:var(--teal)">x⁵⁸ + x³⁹ + 1</td><td>self-synchronizing LFSR</td></tr>
+          <tr><td>XGMII cycles per block</td><td class="mono" style="color:var(--purple)">2</td><td>2 × 4 bytes = 8 bytes = 64 bits</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
